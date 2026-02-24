@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AdminMiddleware
 {
-    
+
     public function handle(Request $request, Closure $next): Response
     {
 
@@ -17,6 +17,6 @@ class AdminMiddleware
             return $next($request);
         }
 
-        return redirect('/')->with('error', 'You do not have admin access.');
+        return redirect('/')->with('error', 'You do not have admin accesss !!!');
     }
 }
