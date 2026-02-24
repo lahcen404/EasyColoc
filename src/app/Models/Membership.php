@@ -13,7 +13,8 @@ class Membership extends Model
 
     protected $casts = ['is_owner' => 'boolean',
                         'joined_at' => 'datetime',
-                        'left_at' => 'datetime',];
+                        'left_at' => 'datetime',
+                        'reputation_score' => 'integer'];
 
     // relations
     public function user(){
