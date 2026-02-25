@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -15,11 +16,11 @@ Route::get('/dashboard', function () {
 Route::middleware('auth')->group(function () {
 
     // Admin
-    Route::get('/admin/console', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
 
     // User
-   // Route::get('/admin/users', [UserController::class, 'index'])->name('admin.users.index');
-   // Route::post('/admin/users/{user}/toggle-ban', [UserController::class, 'toggleBan'])->name('admin.users.toggle-ban');
+    Route::get('/admin/users', [UserController::class, 'index'])->name('admin.users.index');
+    Route::post('/admin/users/{user}/toggle-ban', [UserController::class, 'toggleBan'])->name('admin.users.toggle-ban');
 
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

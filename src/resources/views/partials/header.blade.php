@@ -32,7 +32,7 @@
                             <div class="h-4 w-[1px] bg-brand-light/30 mx-2"></div>
 
                             <!-- Users management remains admin-only  -->
-                            <a href=""
+                            <a href="{{ route('admin.users.index') }}"
                                class="px-4 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition {{ request()->routeIs('admin.users.index') ? 'bg-brand-dark text-white' : 'text-brand-medium hover:bg-brand-soft/50' }}">
                                 Users
                             </a>
