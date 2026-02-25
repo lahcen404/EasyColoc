@@ -17,20 +17,21 @@
 
                 @auth
                     <nav class="hidden md:flex items-center gap-1">
-                        <!-- Standard Member Link -->
-                        <a href="{{ route('dashboard') }}"
-                           class="px-4 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition {{ request()->routeIs('dashboard') ? 'bg-brand-soft text-brand-dark' : 'text-brand-medium hover:bg-brand-soft/50' }}">
+                        <!-- Unified Dashboard Link: Dynamic Destination -->
+                        @php
+                            $dashboardRoute = auth()->user()->role->value === 'admin' ? route('admin.dashboard') : route('dashboard');
+                            $isActive = request()->routeIs('dashboard') || request()->routeIs('admin.dashboard');
+                        @endphp
+
+                        <a href="{{ $dashboardRoute }}"
+                           class="px-4 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition {{ $isActive ? 'bg-brand-soft text-brand-dark' : 'text-brand-medium hover:bg-brand-soft/50' }}">
                             Dashboard
                         </a>
 
                         @if(auth()->user()->role->value === 'admin')
                             <div class="h-4 w-[1px] bg-brand-light/30 mx-2"></div>
 
-                            <a href="{{ route('admin.dashboard') }}"
-                               class="px-4 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition {{ request()->routeIs('admin.dashboard') ? 'bg-brand-dark text-white' : 'text-brand-medium hover:bg-brand-soft/50' }}">
-                                Console
-                            </a>
-
+                            <!-- Users management remains admin-only  -->
                             <a href=""
                                class="px-4 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition {{ request()->routeIs('admin.users.index') ? 'bg-brand-dark text-white' : 'text-brand-medium hover:bg-brand-soft/50' }}">
                                 Users
