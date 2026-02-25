@@ -40,7 +40,7 @@ class RegisteredUserController extends Controller
     'name' => $request->name,
     'email' => $request->email,
     'password' => Hash::make($request->password),
-    'role' => \App\Models\User::count() === 0 ? UserRole::ADMIN : UserRole::USER,
+    'role' => User::count() === 0 ? UserRole::ADMIN : UserRole::USER,
 ]);
 
         event(new Registered($user));
