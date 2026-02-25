@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="py-12">
-       
+
         @if(!$membership)
 
             <!-- ONBOARDING STATE: User has no House -->
@@ -47,7 +47,7 @@
                 </div>
 
                 <div class="flex gap-4">
-                    <a href="#" class="px-8 py-4 bg-brand-dark text-white text-xs font-black uppercase tracking-widest rounded-2xl shadow-xl hover:bg-brand-medium transition-all hover:-translate-y-0.5 flex items-center gap-2">
+                    <a href="{{ route('expenses.create') }}" class="px-8 py-4 bg-brand-dark text-white text-xs font-black uppercase tracking-widest rounded-2xl shadow-xl hover:bg-brand-medium transition-all hover:-translate-y-0.5 flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
                         Log Expense
                     </a>
