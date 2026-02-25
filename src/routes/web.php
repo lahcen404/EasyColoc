@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\ColocationController;
+use App\Http\Controllers\Member\MemberDashboardController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -21,6 +23,13 @@ Route::middleware('auth')->group(function () {
     // User
     Route::get('/admin/users', [UserController::class, 'index'])->name('admin.users.index');
     Route::post('/admin/users/{user}/toggle-ban', [UserController::class, 'toggleBan'])->name('admin.users.toggle-ban');
+
+    // Colocation
+    Route::get('/colocation/create', [ColocationController::class, 'create'])->name('colocations.create');
+    Route::post('/colocation/create', [ColocationController::class, 'store'])->name('colocations.store');
+
+
+    Route::get('/dashboard', [MemberDashboardController::class, 'index'])->name('dashboard');
 
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
