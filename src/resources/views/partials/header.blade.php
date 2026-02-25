@@ -17,25 +17,39 @@
 
                 @auth
                     <nav class="hidden md:flex items-center gap-1">
-                        <!-- Unified Dashboard Link: Dynamic Destination -->
                         @php
-                            $dashboardRoute = auth()->user()->role->value === 'admin' ? route('admin.dashboard') : route('dashboard');
-                            $isActive = request()->routeIs('dashboard') || request()->routeIs('admin.dashboard');
+                            $user = auth()->user();
+                            $isAdmin = $user->role->value === 'admin';
+                            // Check if the user has an active house membership
+                            $activeMembership = $user->memberships()->whereNull('left_at')->first();
+
+                            $dashboardRoute = $isAdmin ? route('admin.dashboard') : route('dashboard');
+                            $isDashboardActive = request()->routeIs('dashboard') || request()->routeIs('admin.dashboard');
                         @endphp
 
+                        <!-- Unified Dashboard -->
                         <a href="{{ $dashboardRoute }}"
-                           class="px-4 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition {{ $isActive ? 'bg-brand-soft text-brand-dark' : 'text-brand-medium hover:bg-brand-soft/50' }}">
+                           class="px-4 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition {{ $isDashboardActive ? 'bg-brand-soft text-brand-dark' : 'text-brand-medium hover:bg-brand-soft/50' }}">
                             Dashboard
                         </a>
 
-                        @if(auth()->user()->role->value === 'admin')
+                        @if($isAdmin)
                             <div class="h-4 w-[1px] bg-brand-light/30 mx-2"></div>
 
-                            <!-- Users management remains admin-only  -->
+                            <!-- Admin: User Management -->
                             <a href="{{ route('admin.users.index') }}"
                                class="px-4 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition {{ request()->routeIs('admin.users.index') ? 'bg-brand-dark text-white' : 'text-brand-medium hover:bg-brand-soft/50' }}">
                                 Users
                             </a>
+                        @else
+                            <!-- Member: Only show Colocation link if they belong to a house -->
+                            @if($activeMembership)
+                                <div class="h-4 w-[1px] bg-brand-light/30 mx-2"></div>
+                                <a href="{{ route('dashboard') }}"
+                                   class="px-4 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition text-brand-medium hover:bg-brand-soft/50">
+                                    Colocation
+                                </a>
+                            @endif
                         @endif
                     </nav>
                 @endauth
