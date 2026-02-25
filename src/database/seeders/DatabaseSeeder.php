@@ -22,12 +22,12 @@ class DatabaseSeeder extends Seeder
      */
    public function run(): void
     {
-        
         User::factory()->create([
             'name' => 'Lahcen Maskour',
             'email' => 'lahcen.maskour2003@gmail.com',
             'password' => Hash::make('lahcen123'),
             'role' => UserRole::ADMIN,
+            'reputation_score' => 100,
         ]);
 
         $categories = collect(['Lekra', 'Lmakla', 'Electricity', 'Internet'])
@@ -38,37 +38,35 @@ class DatabaseSeeder extends Seeder
             'status' => ColocationStatus::ACTIVE,
         ]);
 
-
         $ownerUser = User::factory()->create([
             'name' => 'Owner Lahcen',
             'email' => 'lahcen.maskour@gmail.com',
             'password' => Hash::make('lahcen123'),
+            'reputation_score' => 5,
         ]);
 
-        Membership::create([
+        $ownerMembership = Membership::create([
             'user_id' => $ownerUser->id,
             'colocation_id' => $coloc->id,
             'is_owner' => true,
-            'reputation_score' => 5,
         ]);
 
         $memberUser = User::factory()->create([
             'name' => 'lahcen Member',
             'email' => 'lahcen.maskour203@gmail.com',
             'password' => Hash::make('lahcen123'),
+            'reputation_score' => 2, // Score moved here
         ]);
 
-        Membership::create([
+        $memberMembership = Membership::create([
             'user_id' => $memberUser->id,
             'colocation_id' => $coloc->id,
             'is_owner' => false,
-            'reputation_score' => 2,
         ]);
-
 
         Expense::factory(10)->create([
             'colocation_id' => $coloc->id,
-            'payer_id' => $ownerUser->id,
+            'payer_member_id' => $ownerMembership->id,
             'category_id' => $categories->random()->id,
         ]);
     }

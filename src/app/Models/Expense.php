@@ -11,14 +11,14 @@ class Expense extends Model
     use HasFactory;
 
 
-    protected $fillable = ['title','amount','date','payer_id',
+    protected $fillable = ['title','amount','date','payer_member_id',
                             'colocation_id','category_id'];
 
     protected $casts = [];
 
     public function payer()
     {
-        return $this->belongsTo(User::class, 'payer_id');
+        return $this->belongsTo(User::class, 'payer_member_id');
     }
 
     public function colocation()

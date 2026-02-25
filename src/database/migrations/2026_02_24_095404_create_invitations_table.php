@@ -16,12 +16,14 @@ return new class extends Migration
             $table->id();
             $table->string('email');
             $table->string('token')->unique();
-            $table->foreignId('colocation_id')->constrained();
+            $table->foreignId('colocation_id')->constrained()->onDelete('cascade');
             $table->string('status')->default(InvitationStatus::PENDING->value);
+            $table->timestamp('expires_at')->nullable();
+
             $table->timestamps();
         });
     }
-    
+
 
     /**
      * Reverse the migrations.

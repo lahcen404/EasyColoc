@@ -19,6 +19,9 @@ return new class extends Migration
             $table->string('password');
             $table->string('role')->default(UserRole::USER->value);
             $table->boolean('is_banned')->default(false);
+            $table->integer('reputation_score')->default(0);
+            $table->timestamp('email_verified_at')->nullable();
+            $table->rememberToken();
             $table->timestamps();
         });
 

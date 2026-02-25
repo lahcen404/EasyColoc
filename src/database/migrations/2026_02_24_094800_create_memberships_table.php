@@ -16,10 +16,9 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('colocation_id')->constrained()->onDelete('cascade');
 
-            $table->integer('reputation_score')->default(0);
             $table->boolean('is_owner')->default(false);
             $table->timestamp('joined_at')->useCurrent();
-            $table->timestamp('left_at')->nullable(); 
+            $table->timestamp('left_at')->nullable();
             $table->timestamps();
         });
     }

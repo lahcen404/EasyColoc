@@ -24,6 +24,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'reputation_score',
         'is_banned',
     ];
 
@@ -49,6 +50,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'role' => UserRole::class,
             'is_banned' => 'boolean',
+            'reputation_score' => 'integer',
         ];
     }
 
@@ -56,8 +58,9 @@ class User extends Authenticatable
         return $this->hasMany(Membership::class);
     }
 
-    public function expenses(){
-        return $this->hasMany(Expense::class, 'payer_id');
+    public function expenses()
+    {
+        return $this->hasManyThrough(Expense::class, Membership::class, 'user_id', 'payer_member_id');
     }
 
     public function isGlobalAdmin(){
