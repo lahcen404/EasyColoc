@@ -67,7 +67,7 @@
         <!-- Action Button -->
         <div class="pt-2">
             <button type="submit" class="w-full py-4 bg-brand-dark text-white text-xs font-black uppercase tracking-[0.2em] rounded-xl shadow-lg hover:bg-brand-medium hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200">
-                Authenticate
+                Login
             </button>
         </div>
     </form>
