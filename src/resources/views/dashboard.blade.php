@@ -63,21 +63,27 @@
             <!-- 2. Financial & Reputation Grid -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
 
-                <!-- Personal Balance Card (Requirement 5.4) -->
+                <!-- Personal Balance Card (Data from Controller) -->
                 <div class="p-8 bg-brand-dark rounded-[2.5rem] shadow-2xl text-white relative overflow-hidden flex flex-col justify-between min-h-[220px]">
                     <div class="relative z-10">
                         <p class="text-[10px] font-black uppercase tracking-[0.3em] text-brand-light/60">Your Current Balance</p>
-                        <p class="text-5xl font-black mt-4 tracking-tighter">0.00 <span class="text-xl opacity-40 tabular-nums">€</span></p>
+                        <p class="text-5xl font-black mt-4 tracking-tighter tabular-nums">
+                            {{ number_format($balance, 2) }} <span class="text-xl opacity-40">€</span>
+                        </p>
                     </div>
-                    <div class="relative z-10 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-emerald-400">
-                        <div class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></div>
-                        All Accounts Settled
+                    <div class="relative z-10 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest {{ $balance >= 0 ? 'text-emerald-400' : 'text-orange-300' }}">
+                        @if($balance >= 0)
+                            <div class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></div>
+                            Credit Balance
+                        @else
+                            <div class="w-1.5 h-1.5 rounded-full bg-orange-300 animate-pulse"></div>
+                            Settlement Required
+                        @endif
                     </div>
-                    <!-- Decorative Radial Blur -->
                     <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-brand-medium/30 rounded-full blur-3xl"></div>
                 </div>
 
-                <!-- Global Reputation Score (Requirement 5.5) -->
+                <!-- Global Reputation Score -->
                 <div class="p-8 bg-white rounded-[2.5rem] shadow-sm border border-brand-light/10 flex flex-col justify-between group hover:border-brand-medium/30 transition-colors">
                     <div>
                         <p class="text-[10px] font-black uppercase tracking-[0.3em] text-brand-medium/50">System Reputation</p>
@@ -91,47 +97,88 @@
                     </p>
                 </div>
 
-                <!-- Active Registry Members -->
+                <!-- Active Registry Monthly Spend (Data from Controller) -->
                 <div class="p-8 bg-white rounded-[2.5rem] shadow-sm border border-brand-light/10 flex flex-col justify-between group hover:border-brand-medium/30 transition-colors">
                     <div>
-                        <p class="text-[10px] font-black uppercase tracking-[0.3em] text-brand-medium/50">House Population</p>
+                        <p class="text-[10px] font-black uppercase tracking-[0.3em] text-brand-medium/50">Monthly House Spend</p>
                         <p class="text-5xl font-black mt-4 text-brand-dark tracking-tighter">
-                            {{ $membership->colocation->memberships->count() }} <span class="text-xl text-brand-medium">Members</span>
+                            {{ number_format($totalHouseExpenses, 2) }} <span class="text-xl text-brand-medium">€</span>
                         </p>
                     </div>
                     <p class="text-[10px] font-black text-brand-dark uppercase tracking-widest flex items-center gap-2">
                         <span class="w-2 h-2 rounded-full bg-brand-medium"></span>
-                        Operational Status
+                        {{ $memberCount }} Active Members
                     </p>
                 </div>
             </div>
 
-            <!-- 3. Roommates Registry (Requirement 5.5) -->
-            <div class="space-y-8">
-                <div class="flex justify-between items-center px-2">
-                    <h3 class="text-xs font-black text-brand-dark uppercase tracking-[0.3em]">Active Roommates</h3>
-                    <div class="h-[1px] flex-1 bg-brand-light/20 mx-6"></div>
-                    <span class="text-[10px] font-bold text-brand-medium uppercase tracking-widest">Telemetry Active</span>
+            <!-- 3. Activity & Roommates Grid -->
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-12">
+                <!-- Recent Expenses (Requirement 5.3) -->
+                <div class="space-y-8">
+                    <div class="flex justify-between items-center px-2">
+                        <h3 class="text-xs font-black text-brand-dark uppercase tracking-[0.3em]">Recent Activity</h3>
+                        <div class="h-[1px] flex-1 bg-brand-light/20 mx-6"></div>
+                    </div>
+
+                    <div class="bg-white rounded-[2rem] border border-brand-light/10 overflow-hidden shadow-sm">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="text-[10px] font-black text-brand-medium uppercase tracking-widest border-b border-brand-soft bg-brand-soft/10">
+                                    <th class="px-6 py-4">Transaction</th>
+                                    <th class="px-6 py-4 text-right">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-brand-soft">
+                                @forelse($membership->colocation->expenses->sortByDesc('date')->take(5) as $expense)
+                                    <tr class="hover:bg-brand-soft/30 transition-colors">
+                                        <td class="px-6 py-4">
+                                            <p class="text-sm font-black text-brand-dark leading-none">{{ $expense->title }}</p>
+                                            <p class="text-[9px] font-bold text-brand-medium uppercase mt-2 tracking-tighter">
+                                                By {{ $expense->payer->user->name }} • {{ $expense->date->format('d M') }}
+                                            </p>
+                                        </td>
+                                        <td class="px-6 py-4 text-right font-black text-brand-dark tabular-nums">
+                                            {{ number_format($expense->amount, 2) }} €
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="2" class="px-6 py-16 text-center text-[10px] font-black text-brand-medium/30 uppercase tracking-[0.2em]">
+                                            No active transactions recorded
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    @foreach($membership->colocation->memberships as $member)
-                        <div class="p-6 bg-white rounded-[2rem] border border-brand-light/10 flex items-center justify-between shadow-sm group hover:border-brand-medium/30 transition-all hover:shadow-md">
-                            <div class="flex items-center gap-5">
-                                <div class="w-14 h-14 rounded-2xl bg-brand-soft flex items-center justify-center font-black text-brand-dark text-lg border border-brand-light/20 shadow-inner group-hover:bg-brand-dark group-hover:text-white transition-all duration-300">
-                                    {{ strtoupper(substr($member->user->name, 0, 1)) }}
+                <!-- Roommates Registry (Requirement 5.5) -->
+                <div class="space-y-8">
+                    <div class="flex justify-between items-center px-2">
+                        <h3 class="text-xs font-black text-brand-dark uppercase tracking-[0.3em]">Active Roommates</h3>
+                        <div class="h-[1px] flex-1 bg-brand-light/20 mx-6"></div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        @foreach($membership->colocation->memberships as $member)
+                            <div class="p-6 bg-white rounded-[2rem] border border-brand-light/10 flex items-center justify-between shadow-sm group hover:border-brand-medium/30 transition-all hover:shadow-md">
+                                <div class="flex items-center gap-5">
+                                    <div class="w-14 h-14 rounded-2xl bg-brand-soft flex items-center justify-center font-black text-brand-dark text-lg border border-brand-light/20 shadow-inner group-hover:bg-brand-dark group-hover:text-white transition-all duration-300">
+                                        {{ strtoupper(substr($member->user->name, 0, 1)) }}
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-black text-brand-dark leading-none">{{ $member->user->name }}</p>
+                                        <p class="text-[10px] font-bold text-brand-medium uppercase mt-2 tracking-widest">
+                                            {{ $member->is_owner ? 'Primary Owner' : 'House Resident' }}
+                                        </p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <p class="text-sm font-black text-brand-dark leading-none">{{ $member->user->name }}</p>
-                                    <p class="text-[10px] font-bold text-brand-medium uppercase mt-2 tracking-widest">
-                                        {{ $member->is_owner ? 'Primary Owner' : 'House Resident' }}
-                                    </p>
-                                </div>
+                                <div class="w-2 h-2 rounded-full {{ $member->user->id === auth()->id() ? 'bg-emerald-400' : 'bg-brand-light/40' }}"></div>
                             </div>
-                            <!-- Status indicator -->
-                            <div class="w-2 h-2 rounded-full {{ $member->user->id === auth()->id() ? 'bg-emerald-400' : 'bg-brand-light/40' }}"></div>
-                        </div>
-                    @endforeach
+                        @endforeach
+                    </div>
                 </div>
             </div>
         @endif

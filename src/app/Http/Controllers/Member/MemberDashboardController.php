@@ -12,13 +12,33 @@ class MemberDashboardController extends Controller
     {
         $membership = auth()->user()->memberships()
             ->with([
-                'colocation',
-                'colocation.memberships.user',
-                'colocation.expenses'
+                'colocation.expenses.payer.user',
+                'colocation.memberships.user'
             ])
             ->whereNull('left_at')
             ->first();
 
-        return view('dashboard', compact('membership'));
+        $totalHouseExpenses = 0;
+        $memberCount = 0;
+        $fairShare = 0;
+        $paidByMe = 0;
+        $balance = 0;
+
+        if ($membership) {
+            $totalHouseExpenses = $membership->colocation->expenses->sum('amount');
+            $memberCount = $membership->colocation->memberships->count();
+            $fairShare = $memberCount > 0 ? ($totalHouseExpenses / $memberCount) : 0;
+            $paidByMe = $membership->paidExpenses->sum('amount');
+            $balance = $paidByMe - $fairShare;
+        }
+
+        return view('dashboard', compact(
+            'membership',
+            'totalHouseExpenses',
+            'memberCount',
+            'fairShare',
+            'paidByMe',
+            'balance'
+        ));
     }
 }

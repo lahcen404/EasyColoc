@@ -14,11 +14,13 @@ class Expense extends Model
     protected $fillable = ['title','amount','date','payer_member_id',
                             'colocation_id','category_id'];
 
-    protected $casts = [];
-
+ protected $casts = [
+        'date' => 'date',
+        'amount' => 'decimal:2',
+    ];
     public function payer()
     {
-        return $this->belongsTo(User::class, 'payer_member_id');
+        return $this->belongsTo(Membership::class, 'payer_member_id');
     }
 
     public function colocation()
