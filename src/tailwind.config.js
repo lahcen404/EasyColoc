@@ -14,6 +14,13 @@ export default {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
+            // THE FIX: Define your custom palette here
+            colors: {
+                'brand-dark': '#0A6071',      // Darkest Teal
+                'brand-medium': '#078291',    // Medium Teal
+                'brand-light': '#8BBAB6',     // Soft Turquoise
+                'brand-soft': '#E9F2F3',      // Lightest Background
+            },
         },
     },
 
