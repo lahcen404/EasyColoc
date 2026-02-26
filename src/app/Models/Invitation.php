@@ -10,9 +10,12 @@ class Invitation extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['email','token','colocation_id','status'];
+    protected $fillable = ['email','token','colocation_id','status','expires_at'];
 
-    protected $casts = ['status' => InvitationStatus::class,];
+    protected $casts = [
+        'status' => InvitationStatus::class,
+        'expires_at' => 'datetime',
+    ];
 
     public function colocation(){
         return $this->belongsTo(Colocation::class);
