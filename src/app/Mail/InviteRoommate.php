@@ -15,7 +15,7 @@ class InviteRoommate extends Mailable
 
     public $invitation;
 
-    // Create a new message instance
+    // creeate a new message instance
     public function __construct(Invitation $invitation)
     {
         $this->invitation = $invitation;
