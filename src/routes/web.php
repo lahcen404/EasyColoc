@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ColocationController;
+use App\Http\Controllers\Member\ColocationMemberController;
 use App\Http\Controllers\Member\MemberDashboardController;
 use App\Http\Controllers\Member\ExpenseController;
 use App\Http\Controllers\Member\InvitationController;
@@ -19,6 +20,9 @@ Route::middleware('auth')->group(function () {
     // colocation routes
     Route::get('/colocation/create', [ColocationController::class, 'create'])->name('colocations.create');
     Route::post('/colocation/create', [ColocationController::class, 'store'])->name('colocations.store');
+
+    // Leave colocation route
+    Route::post('/colocation/leave', [ColocationMemberController::class, 'leave'])->name('colocations.leave');
 
     // invitation routes
     Route::get('/invitations/create', [InvitationController::class, 'create'])->name('invitations.create');
