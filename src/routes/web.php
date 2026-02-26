@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ColocationController;
 use App\Http\Controllers\Member\MemberDashboardController;
 use App\Http\Controllers\Member\ExpenseController;
+use App\Http\Controllers\Member\InvitationController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -19,7 +20,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/colocation/create', [ColocationController::class, 'create'])->name('colocations.create');
     Route::post('/colocation/create', [ColocationController::class, 'store'])->name('colocations.store');
 
-    // expeense routes
+    // invitation routes
+    Route::get('/invitations/create', [InvitationController::class, 'create'])->name('invitations.create');
+    Route::post('/invitations', [InvitationController::class, 'store'])->name('invitations.store');
+    Route::get('/join/{token}', [InvitationController::class, 'join'])->name('invitations.join');
+
+    // expense routes
     Route::get('/expenses/create', [ExpenseController::class, 'create'])->name('expenses.create');
     Route::post('/expenses', [ExpenseController::class, 'store'])->name('expenses.store');
 
@@ -27,7 +33,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
 
     // admin routes
     Route::prefix('admin')->name('admin.')->group(function () {
