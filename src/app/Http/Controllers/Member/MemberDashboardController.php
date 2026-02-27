@@ -8,6 +8,7 @@ use Illuminate\View\View;
 
 class MemberDashboardController extends Controller
 {
+   
     public function index(): View
     {
         $membership = auth()->user()->memberships()
@@ -19,9 +20,9 @@ class MemberDashboardController extends Controller
             ->whereNull('left_at')
             ->first();
 
+
         $totalHouseExpenses = 0;
         $memberCount = 0;
-        $fairShare = 0;
         $paidByMe = 0;
         $balance = 0;
         $settlements = [];
@@ -29,7 +30,7 @@ class MemberDashboardController extends Controller
         if ($membership) {
             $colocation = $membership->colocation;
 
-            // calculaate house expenses
+            // active membeers
             $activeMemberships = $colocation->memberships()
                 ->whereNull('left_at')
                 ->with(['user', 'paidExpenses'])
@@ -37,40 +38,56 @@ class MemberDashboardController extends Controller
 
             $memberCount = $activeMemberships->count();
 
-            // calculate total expenses paid by all members
-            $totalHouseExpenses = $activeMemberships->sum(function($m) {
-                return $m->paidExpenses->sum('amount');
-            });
 
-            $fairShare = $memberCount > 0 ? round($totalHouseExpenses / $memberCount, 2) : 0;
+            $myRelevantExpenses = $colocation->expenses()
+                ->where('date', '>=', $membership->joined_at)
+                ->get();
+
+            $myFairShare = $memberCount > 0 ? round($myRelevantExpenses->sum('amount') / $memberCount, 2) : 0;
 
             $paidByMe = $membership->paidExpenses->sum('amount');
-            $balance = $paidByMe - $fairShare;
 
-            // Calcuulate settlements
+            $balance = $paidByMe - $myFairShare;
+
+            // 4. Global Stats (For the top info cards)
+            $totalHouseExpenses = $colocation->expenses->sum('amount');
+
+
             $balances = [];
             foreach ($activeMemberships as $m) {
-                $userPaid = $m->paidExpenses->sum('amount');
-                $userBalance = round($userPaid - $fairShare, 2);
+
+                $relevantSum = $colocation->expenses()
+                    ->where('date', '>=', $m->joined_at)
+                    ->sum('amount');
+
+                $mFairShare = $memberCount > 0 ? round($relevantSum / $memberCount, 2) : 0;
+                $mPaid = $m->paidExpenses->sum('amount');
+
                 $balances[] = [
                     'name' => $m->user->name,
                     'id' => $m->id,
-                    'balance' => $userBalance
+                    'balance' => round($mPaid - $mFairShare, 2)
                 ];
             }
 
+            // algo to determine who owes who based on balances
             $debtors = array_filter($balances, fn($b) => $b['balance'] < -0.01);
             $creditors = array_filter($balances, fn($b) => $b['balance'] > 0.01);
 
             foreach ($debtors as &$debtor) {
                 foreach ($creditors as &$creditor) {
+                    // Caalculate transfer amount
                     $amount = min(abs($debtor['balance']), $creditor['balance']);
+
                     if ($amount > 0.01) {
                         $settlements[] = [
                             'from' => $debtor['name'],
                             'to' => $creditor['name'],
-                            'amount' => round($amount, 2)
+                            'amount' => round($amount, 2),
+                            'to_id' => $creditor['id']
                         ];
+
+                        // updaaate balances
                         $debtor['balance'] += $amount;
                         $creditor['balance'] -= $amount;
                     }
@@ -82,7 +99,6 @@ class MemberDashboardController extends Controller
             'membership',
             'totalHouseExpenses',
             'memberCount',
-            'fairShare',
             'paidByMe',
             'balance',
             'settlements'
