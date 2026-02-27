@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Member;
 
+use App\Enums\ColocationStatus;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -50,4 +51,6 @@ class ColocationMemberController extends Controller
             return redirect()->back()->with('error', 'System error during departure.');
         }
     }
+
+     
 }
