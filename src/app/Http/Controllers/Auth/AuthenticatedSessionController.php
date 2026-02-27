@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
@@ -28,8 +29,15 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        $user = Auth::user();
+
+        if ($user->role === UserRole::ADMIN) {
+            return redirect()->intended(route('admin.dashboard', absolute: false));
+        }
+
+        // Otherwise, send them to the standard House Dashboard
         return redirect()->intended(route('dashboard', absolute: false));
-    }
+            }
 
     /**
      * Destroy an authenticated session.
