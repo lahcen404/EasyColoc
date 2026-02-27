@@ -7,6 +7,7 @@ use App\Http\Controllers\Member\ColocationMemberController;
 use App\Http\Controllers\Member\MemberDashboardController;
 use App\Http\Controllers\Member\ExpenseController;
 use App\Http\Controllers\Member\InvitationController;
+use App\Http\Controllers\Member\PaymentController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -35,7 +36,12 @@ Route::middleware('auth')->group(function () {
         Route::post('/invitations', [InvitationController::class, 'store'])->name('invitations.store');
         Route::get('/join/{token}', [InvitationController::class, 'join'])->name('invitations.join');
 
+        // payment routes
+        Route::post('/payments', [PaymentController::class, 'store'])->name('payments.store');
+
+
         // expense routes
+        Route::get('/expenses', [ExpenseController::class, 'index'])->name('expenses.index');
         Route::get('/expenses/create', [ExpenseController::class, 'create'])->name('expenses.create');
         Route::post('/expenses', [ExpenseController::class, 'store'])->name('expenses.store');
     });

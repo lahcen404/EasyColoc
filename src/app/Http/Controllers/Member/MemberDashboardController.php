@@ -5,21 +5,22 @@ namespace App\Http\Controllers\Member;
 use App\Http\Controllers\Controller;
 use App\Models\Membership;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Auth;
 
 class MemberDashboardController extends Controller
 {
-
     public function index(): View
     {
         $membership = auth()->user()->memberships()
             ->with([
                 'colocation.expenses.payer.user',
                 'colocation.memberships.user',
-                'paidExpenses'
+                'paidExpenses',
+                'sentPayments',
+                'receivedPayments'  
             ])
             ->whereNull('left_at')
             ->first();
-
 
         $totalHouseExpenses = 0;
         $memberCount = 0;
@@ -33,11 +34,10 @@ class MemberDashboardController extends Controller
             // active membeers
             $activeMemberships = $colocation->memberships()
                 ->whereNull('left_at')
-                ->with(['user', 'paidExpenses'])
+                ->with(['user', 'paidExpenses', 'sentPayments', 'receivedPayments'])
                 ->get();
 
             $memberCount = $activeMemberships->count();
-
 
             $myRelevantExpenses = $colocation->expenses()
                 ->where('date', '>=', $membership->joined_at)
@@ -46,12 +46,13 @@ class MemberDashboardController extends Controller
             $myFairShare = $memberCount > 0 ? round($myRelevantExpenses->sum('amount') / $memberCount, 2) : 0;
 
             $paidByMe = $membership->paidExpenses->sum('amount');
+            $sentByMe = $membership->sentPayments->sum('amount');
+            $receivedByMe = $membership->receivedPayments->sum('amount');
 
-            $balance = $paidByMe - $myFairShare;
+            // formula: (paid + sent) - (fair share + received)
+            $balance = ($paidByMe + $sentByMe) - ($myFairShare + $receivedByMe);
 
-            
             $totalHouseExpenses = $colocation->expenses->sum('amount');
-
 
             $balances = [];
             foreach ($activeMemberships as $m) {
@@ -61,12 +62,15 @@ class MemberDashboardController extends Controller
                     ->sum('amount');
 
                 $mFairShare = $memberCount > 0 ? round($relevantSum / $memberCount, 2) : 0;
+
                 $mPaid = $m->paidExpenses->sum('amount');
+                $mSent = $m->sentPayments->sum('amount');
+                $mReceived = $m->receivedPayments->sum('amount');
 
                 $balances[] = [
                     'name' => $m->user->name,
                     'id' => $m->id,
-                    'balance' => round($mPaid - $mFairShare, 2)
+                    'balance' => round(($mPaid + $mSent) - ($mFairShare + $mReceived), 2)
                 ];
             }
 

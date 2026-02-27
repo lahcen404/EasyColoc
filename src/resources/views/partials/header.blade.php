@@ -47,6 +47,11 @@
                                 <span class="px-4 py-2 text-[10px] font-black text-brand-medium/40 uppercase tracking-[0.2em]">
                                     {{ $activeMembership->colocation->name }}
                                 </span>
+
+                                <a href="{{ route('expenses.index') }}"
+                                   class="px-4 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition {{ request()->routeIs('expenses.*') ? 'bg-brand-dark text-white shadow-md' : 'text-brand-medium hover:bg-brand-soft/50' }}">
+                                    My Expenses
+                                </a>
                             @endif
                         @endif
                     </nav>
