@@ -8,7 +8,7 @@ use Illuminate\View\View;
 
 class MemberDashboardController extends Controller
 {
-   
+
     public function index(): View
     {
         $membership = auth()->user()->memberships()
@@ -49,7 +49,7 @@ class MemberDashboardController extends Controller
 
             $balance = $paidByMe - $myFairShare;
 
-            // 4. Global Stats (For the top info cards)
+            
             $totalHouseExpenses = $colocation->expenses->sum('amount');
 
 

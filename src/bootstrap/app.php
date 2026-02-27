@@ -4,7 +4,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 
-use app\Http\Middleware\AdminMiddleware;
+use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\CheckIfBanned;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -14,10 +14,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-    $middleware->alias([
-        'admin' => AdminMiddleware::class,
-        'checkBanned' => CheckIfBanned::class,
-    ]);
+    $middleware->web(append: [
+            CheckIfBanned::class,
+        ]);
+
+        $middleware->alias([
+            'admin' => AdminMiddleware::class,
+        ]);
 })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
