@@ -11,6 +11,26 @@ use Illuminate\Http\RedirectResponse;
 
 class ExpenseController extends Controller
 {
+    // show monthly statistics and history
+    public function index(Request $request): View
+    {
+        $membership = auth()->user()->memberships()
+            ->whereNull('left_at')
+            ->firstOrFail();
+
+        $month = $request->get('month', date('m'));
+        $year = $request->get('year', date('Y'));
+
+        $expenses = $membership->colocation->expenses()
+            ->whereYear('date', $year)
+            ->whereMonth('date', $month)
+            ->with(['payer.user', 'category'])
+            ->latest('date')
+            ->paginate(15);
+
+        return view('expenses.index', compact('expenses', 'month', 'year', 'membership'));
+    }
+
     // show form to creaate a new expense
     public function create(): View
     {

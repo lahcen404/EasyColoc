@@ -1,280 +1,275 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="py-12">
+<div class="py-12">
+    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
-        @if (!$membership)
-            <!-- ONBOARDING STATE: User has no House (Requirement 3.1) -->
-            <div class="max-w-4xl mx-auto text-center py-20">
-                <div class="inline-flex p-6 bg-white rounded-[2.5rem] shadow-xl mb-8 border-b-4 border-brand-medium">
+        @if(!$membership)
+            <!-- No House State -->
+            <div class="text-center py-24 bg-white rounded-[3rem] shadow-xl border-2 border-dashed border-brand-light/30">
+                <div class="w-24 h-24 bg-brand-soft rounded-3xl flex items-center justify-center mx-auto mb-8">
                     <svg class="w-12 h-12 text-brand-medium" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                     </svg>
                 </div>
-                <h2 class="text-4xl font-black text-brand-dark tracking-tighter uppercase mb-4">
-                    Ready to start<br /><span class="text-brand-medium">Your Journey?</span>
-                </h2>
-                <p class="text-sm font-bold text-brand-medium/60 uppercase tracking-widest max-w-md mx-auto leading-relaxed mb-10">
-                    You are currently not associated with a house registry. Initialize a new cluster or wait for an invitation to join one.
-                </p>
-
-                <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-                    <a href="{{ route('colocations.create') }}"
-                        class="w-full sm:w-auto px-10 py-5 bg-brand-dark text-white text-xs font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl hover:bg-brand-medium hover:-translate-y-1 transition-all">
-                        Initialize New House
-                    </a>
+                <h2 class="text-4xl font-black text-brand-dark uppercase tracking-tighter">No Active House</h2>
+                <p class="text-brand-medium/60 font-bold mt-3 mb-10 uppercase text-[10px] tracking-[0.4em]">Start your journey by joining or creating a house</p>
+                <div class="flex justify-center gap-4">
+                    <a href="{{ route('colocations.create') }}" class="px-10 py-5 bg-brand-dark text-white text-xs font-black uppercase tracking-widest rounded-2xl shadow-2xl hover:bg-brand-medium transition-all transform hover:-translate-y-1">Create New House</a>
                 </div>
             </div>
         @else
-            <!-- ACTIVE STATE: User is in a House -->
-
-            <!-- 1. Header & Identity -->
-            <div class="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <!-- Active House Header -->
+            <div class="mb-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 px-4">
                 <div>
-                    <div class="flex items-center gap-3 mb-3">
-                        <span class="px-3 py-1 bg-brand-medium text-white text-[9px] font-black uppercase rounded-full tracking-widest shadow-sm">
-                            {{ $membership->is_owner ? 'Primary Owner' : 'House Member' }}
-                        </span>
-                        <span class="text-[10px] font-bold text-brand-medium/50 uppercase tracking-widest">
-                            Registry Active since {{ $membership->joined_at?->format('M Y') ?? 'N/A' }}
-                        </span>
-                    </div>
                     <h2 class="text-6xl font-black text-brand-dark tracking-tighter uppercase leading-none">
                         {{ $membership->colocation->name }}
                     </h2>
+                    <div class="flex items-center gap-5 mt-5">
+                        <div class="flex items-center gap-2 px-4 py-1.5 bg-brand-dark rounded-xl">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                            <span class="text-[9px] font-black text-white uppercase tracking-widest">
+                                {{ $membership->is_owner ? 'House Owner' : 'Member' }}
+                            </span>
+                        </div>
+                        <span class="text-[10px] font-bold text-brand-medium uppercase tracking-[0.2em]">
+                            {{ $memberCount }} Roommates Online
+                        </span>
+                    </div>
                 </div>
 
                 <div class="flex gap-4">
-                    <a href="{{ route('expenses.create') }}"
-                        class="px-8 py-4 bg-brand-dark text-white text-xs font-black uppercase tracking-widest rounded-2xl shadow-xl hover:bg-brand-medium transition-all hover:-translate-y-0.5 flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
-                        </svg>
+                    <a href="{{ route('expenses.create') }}" class="px-8 py-5 bg-brand-dark text-white text-xs font-black uppercase tracking-widest rounded-[1.5rem] shadow-2xl hover:bg-brand-medium transition-all flex items-center gap-3">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"/></svg>
                         Log Expense
                     </a>
-
-                    @if ($membership->is_owner)
-                        <a href="{{ route('invitations.create') }}"
-                            class="px-8 py-4 bg-white text-brand-dark text-xs font-black uppercase tracking-widest rounded-2xl border border-brand-light/30 shadow-sm hover:bg-brand-soft transition-all">
-                            Invite Roommate
+                    @if($membership->is_owner)
+                        <a href="{{ route('invitations.create') }}" class="px-8 py-5 bg-white border-2 border-brand-dark text-brand-dark text-xs font-black uppercase tracking-widest rounded-[1.5rem] hover:bg-brand-soft transition-all shadow-sm">
+                            Invite
                         </a>
                     @endif
                 </div>
             </div>
 
-            <!-- 2. Financial & Reputation Grid -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-                <!-- Personal Balance Card -->
-                <div class="p-8 bg-brand-dark rounded-[2.5rem] shadow-2xl text-white relative overflow-hidden flex flex-col justify-between min-h-[220px]">
-                    <div class="relative z-10">
-                        <p class="text-[10px] font-black uppercase tracking-[0.3em] text-brand-light/60">Your Current Balance</p>
-                        <p class="text-5xl font-black mt-4 tracking-tighter tabular-nums">
-                            {{ number_format($balance, 2) }} <span class="text-xl opacity-40">€</span>
-                        </p>
+            <!-- Confirmation Handshake Section -->
+            @if($pendingIncoming->count() > 0)
+                <div class="mb-12 animate-in fade-in slide-in-from-top-4 duration-700">
+                    <div class="flex items-center gap-3 mb-6 px-4">
+                        <div class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></div>
+                        <h3 class="text-[10px] font-black text-brand-dark uppercase tracking-[0.4em]">Action Required: Verify Received Funds</h3>
                     </div>
-                    <div class="relative z-10 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest {{ $balance >= 0 ? 'text-emerald-400' : 'text-orange-300' }}">
-                        @if ($balance >= 0)
-                            <div class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></div>
-                            Credit Balance
-                        @else
-                            <div class="w-1.5 h-1.5 rounded-full bg-orange-300 animate-pulse"></div>
-                            Settlement Required
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        @foreach($pendingIncoming as $payment)
+                            <div class="bg-white border-2 border-brand-light/20 p-8 rounded-[3rem] flex items-center justify-between shadow-sm hover:shadow-xl transition-all group">
+                                <div class="flex items-center gap-5">
+                                    <div class="w-14 h-14 bg-brand-soft rounded-[1.5rem] flex items-center justify-center border border-brand-light/10 shadow-inner group-hover:bg-brand-light/20 transition-colors">
+                                        <svg class="w-7 h-7 text-brand-medium" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p class="text-[9px] font-black text-brand-medium uppercase tracking-widest mb-1">Incoming Verification</p>
+                                        <p class="text-base font-black text-brand-dark tracking-tight">
+                                            {{ $payment->sender->user->name }} sent <span class="text-brand-medium">{{ number_format($payment->amount, 2) }}€</span>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <form action="{{ route('payments.confirm', $payment) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="px-8 py-4 bg-brand-dark text-white text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-brand-medium transition-all shadow-lg active:scale-95">
+                                        Confirm
+                                    </button>
+                                </form>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
+            <!-- Global Balance Stats -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+                <!-- My Current Standing -->
+                <div class="lg:col-span-1 bg-brand-dark rounded-[3.5rem] p-12 text-white shadow-2xl relative overflow-hidden group">
+                    <div class="relative z-10">
+                        <p class="text-[10px] font-black uppercase tracking-[0.4em] text-brand-light opacity-60 mb-3">Individual Balance</p>
+                        <h3 class="text-7xl font-black tracking-tighter leading-none mb-8 tabular-nums">
+                            {{ number_format($balance, 2) }}<span class="text-3xl ml-1">€</span>
+                        </h3>
+                        <div class="flex items-center gap-3">
+                            <div class="w-3 h-3 rounded-full {{ $balance >= 0 ? 'bg-emerald-400' : 'bg-red-400' }} shadow-[0_0_15px_rgba(52,211,153,0.5)]"></div>
+                            <span class="text-[10px] font-black uppercase tracking-[0.2em] text-brand-light">
+                                {{ $balance >= 0 ? 'Account Settled' : 'Debt in Registry' }}
+                            </span>
+                        </div>
+                    </div>
+                    <!-- Decorative Background Element -->
+                    <div class="absolute -right-16 -bottom-16 w-56 h-56 bg-brand-medium rounded-full blur-[80px] opacity-30 group-hover:opacity-50 transition-opacity"></div>
+                </div>
+
+                <!-- House Metrics Grid -->
+                <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-[3rem] p-10 border border-brand-light/10 shadow-sm flex flex-col justify-center">
+                        <p class="text-[10px] font-black text-brand-medium uppercase tracking-widest mb-6">Aggregate House Spend</p>
+                        <p class="text-5xl font-black text-brand-dark tabular-nums tracking-tighter">{{ number_format($totalHouseExpenses, 2) }}€</p>
+                        <p class="text-[9px] font-bold text-brand-medium/40 mt-3 uppercase tracking-[0.3em]">Historical ledger total</p>
+                    </div>
+
+                    <div class="bg-white rounded-[3rem] p-10 border border-brand-light/10 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <p class="text-[10px] font-black text-brand-medium uppercase tracking-widest mb-6">Operational Tools</p>
+                            <div class="flex flex-wrap gap-3">
+                                <a href="{{ route('expenses.index') }}" class="px-6 py-3 bg-brand-soft text-brand-dark text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-brand-soft transition-all shadow-sm">History</a>
+                                <form action="{{ route('colocations.leave') }}" method="POST" onsubmit="return confirm('Are you sure you want to exit this house?');">
+                                    @csrf
+                                    <button type="submit" class="px-6 py-3 bg-red-50 text-red-600 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-red-100 transition-all">Exit House</button>
+                                </form>
+                            </div>
+                        </div>
+                        @if($membership->is_owner)
+                            <div class="mt-6 pt-6 border-t border-brand-soft/50">
+                                <form action="{{ route('colocations.cancel') }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this colocation?');">
+                                    @csrf
+                                    <button type="submit" class="text-[9px] font-black text-red-400 uppercase tracking-widest hover:text-red-600 transition-colors">Cancel Colocation</button>
+                                </form>
+                            </div>
                         @endif
                     </div>
-                    <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-brand-medium/30 rounded-full blur-3xl"></div>
-                </div>
-
-                <!-- Global Reputation Score (Rule 5.5) -->
-                <div class="p-8 bg-white rounded-[2.5rem] shadow-sm border border-brand-light/10 flex flex-col justify-between group hover:border-brand-medium/30 transition-colors">
-                    <div>
-                        <p class="text-[10px] font-black uppercase tracking-[0.3em] text-brand-medium/50">System Reputation</p>
-                        <div class="flex items-center gap-4 mt-4">
-                            <span class="text-5xl font-black {{ auth()->user()->reputation_score >= 0 ? 'text-emerald-500' : 'text-red-500' }} tracking-tighter">
-                                {{ auth()->user()->reputation_score >= 0 ? '+' : '' }}{{ auth()->user()->reputation_score }}
-                            </span>
-                            <div class="px-3 py-1 {{ auth()->user()->reputation_score >= 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700' }} text-[9px] font-black rounded-lg uppercase tracking-wider">
-                                {{ auth()->user()->reputation_score >= 0 ? 'Trusted Unit' : 'Risk Profile' }}
-                            </div>
-                        </div>
-                    </div>
-                    <p class="text-[10px] font-medium text-brand-medium/60 italic leading-tight uppercase tracking-wide">Permanent score tied to your identity.</p>
-                </div>
-
-                <!-- Monthly House Spend -->
-                <div class="p-8 bg-white rounded-[2.5rem] shadow-sm border border-brand-light/10 flex flex-col justify-between group hover:border-brand-medium/30 transition-colors">
-                    <div>
-                        <p class="text-[10px] font-black uppercase tracking-[0.3em] text-brand-medium/50">Monthly House Spend</p>
-                        <p class="text-5xl font-black mt-4 text-brand-dark tracking-tighter">
-                            {{ number_format($totalHouseExpenses, 2) }} <span class="text-xl text-brand-medium">€</span>
-                        </p>
-                    </div>
-                    <p class="text-[10px] font-black text-brand-dark uppercase tracking-widest flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-brand-medium"></span>
-                        {{ $memberCount }} Active Members
-                    </p>
                 </div>
             </div>
 
-            <!-- 3. Settlement Matrix (Requirement 5.4: Who Owes Who) -->
-            <div class="mb-16">
-                <div class="flex justify-between items-center px-2 mb-8">
-                    <h3 class="text-xs font-black text-brand-dark uppercase tracking-[0.3em]">Settlement Matrix</h3>
-                    <div class="h-[1px] flex-1 bg-brand-light/20 mx-6"></div>
-                    <span class="text-[9px] font-bold text-brand-medium uppercase">Reimbursement Logic Active</span>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    @forelse($settlements as $settlement)
-                        <div class="p-6 bg-white rounded-[2rem] border border-brand-light/10 shadow-sm flex items-center justify-between group hover:border-brand-medium/30 transition-all hover:shadow-md">
-                            <div class="flex flex-col">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-xs font-black text-brand-dark">{{ $settlement['from'] }}</span>
-                                    <svg class="w-3 h-3 text-brand-medium/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                                    <span class="text-xs font-black text-brand-medium">{{ $settlement['to'] }}</span>
-                                </div>
-                                <span class="text-[8px] font-bold text-brand-medium/50 uppercase tracking-widest mt-2">Required Payment</span>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-lg font-black text-brand-dark tabular-nums">{{ number_format($settlement['amount'], 2) }}€</p>
-
-                                {{-- Requirement 5.6: Mark as Paid --}}
-                                @if($settlement['from'] === auth()->user()->name)
-                                    <form action="" method="POST">
-                                        @csrf
-                                        <input type="hidden" name="receiver_id" value="{{ $settlement['id'] ?? '' }}">
-                                        <input type="hidden" name="amount" value="{{ $settlement['amount'] }}">
-                                        <button type="submit" class="text-[8px] font-black text-brand-medium hover:text-brand-dark uppercase tracking-widest mt-1 underline decoration-brand-light/30 transition-all">
-                                            Mark as Sent
-                                        </button>
-                                    </form>
-                                @else
-                                    <span class="text-[8px] font-bold text-brand-medium/30 uppercase tracking-widest mt-1">Pending</span>
-                                @endif
-                            </div>
-                        </div>
-                    @empty
-                        <div class="col-span-full p-12 bg-brand-soft/20 rounded-[2.5rem] border border-dashed border-brand-light/30 text-center">
-                            <p class="text-[10px] font-black text-brand-medium/40 uppercase tracking-[0.3em]">All balances are settled.</p>
-                        </div>
-                    @endforelse
-                </div>
-            </div>
-
-            <!-- 4. Activity & Roommates Grid -->
-            <div class="grid grid-cols-1 xl:grid-cols-2 gap-12">
-                <!-- Recent Expenses -->
-                <div class="space-y-8">
-                    <div class="flex justify-between items-center px-2">
-                        <h3 class="text-xs font-black text-brand-dark uppercase tracking-[0.3em]">Recent Activity</h3>
-                        <div class="h-[1px] flex-1 bg-brand-light/20 mx-6"></div>
+            <!-- Settlement Logic Matrix -->
+            <div class="bg-white rounded-[3.5rem] shadow-sm border border-brand-light/10 overflow-hidden mb-12">
+                <div class="px-12 py-10 border-b border-brand-soft bg-brand-soft/10 flex justify-between items-center">
+                    <div>
+                        <h3 class="text-xs font-black text-brand-dark uppercase tracking-[0.4em]">Settlement Matrix</h3>
+                        <p class="text-[8px] font-bold text-brand-medium/50 uppercase mt-1 tracking-widest">Active P2P Resolution Engine</p>
                     </div>
-
-                    <div class="bg-white rounded-[2rem] border border-brand-light/10 overflow-hidden shadow-sm">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="text-[10px] font-black text-brand-medium uppercase tracking-widest border-b border-brand-soft bg-brand-soft/10">
-                                    <th class="px-6 py-4">Transaction</th>
-                                    <th class="px-6 py-4 text-right">Amount</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-brand-soft">
-                                @forelse($membership->colocation->expenses->sortByDesc('date')->take(5) as $expense)
-                                    <tr class="hover:bg-brand-soft/30 transition-colors">
-                                        <td class="px-6 py-4">
-                                            <p class="text-sm font-black text-brand-dark leading-none">{{ $expense->title }}</p>
-                                            <p class="text-[9px] font-bold text-brand-medium uppercase mt-2 tracking-tighter">
-                                                By {{ $expense->payer?->user?->name ?? 'System' }} • {{ $expense->date?->format('d M') ?? 'N/A' }}
-                                            </p>
-                                        </td>
-                                        <td class="px-6 py-4 text-right font-black text-brand-dark tabular-nums">
-                                            {{ number_format($expense->amount, 2) }} €
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr><td colspan="2" class="px-6 py-16 text-center text-[10px] font-black text-brand-medium/30 uppercase tracking-[0.2em]">No transactions recorded</td></tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        <span class="text-[9px] font-black text-brand-medium uppercase tracking-widest italic">Live Logic</span>
                     </div>
                 </div>
 
-                <!-- Roommates & Invites -->
-                <div class="space-y-12">
+                <div class="p-12">
                     <div class="space-y-8">
-                        <div class="flex justify-between items-center px-2">
-                            <h3 class="text-xs font-black text-brand-dark uppercase tracking-[0.3em]">Active Roommates</h3>
-                            <div class="h-[1px] flex-1 bg-brand-light/20 mx-6"></div>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            @foreach ($membership->colocation->memberships()->whereNull('left_at')->get() as $member)
-                                <div class="p-6 bg-white rounded-[2rem] border border-brand-light/10 flex items-center justify-between shadow-sm group hover:border-brand-medium/30 transition-all">
-                                    <div class="flex items-center gap-5">
-                                        <div class="w-14 h-14 rounded-2xl bg-brand-soft flex items-center justify-center font-black text-brand-dark text-lg border border-brand-light/20 shadow-inner group-hover:bg-brand-dark group-hover:text-white transition-all">
-                                            {{ strtoupper(substr($member->user->name, 0, 1)) }}
+                        @forelse($settlements as $settlement)
+                            <div class="flex items-center justify-between p-8 bg-brand-soft/15 rounded-[2.5rem] border border-brand-light/5 hover:border-brand-medium/30 transition-all group">
+                                <div class="flex items-center gap-8">
+                                    <!-- Debtor (From) -->
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-10 h-10 rounded-xl bg-brand-dark flex items-center justify-center text-[11px] font-black text-white shadow-lg">
+                                            {{ strtoupper(substr($settlement['from'], 0, 1)) }}
                                         </div>
-                                        <div>
-                                            <p class="text-sm font-black text-brand-dark leading-none">{{ $member->user->name }}</p>
-                                            <p class="text-[10px] font-bold text-brand-medium uppercase mt-2 tracking-widest">{{ $member->is_owner ? 'Owner' : 'Member' }}</p>
-                                        </div>
+                                        <span class="text-xs font-black text-brand-dark uppercase tracking-tighter">{{ $settlement['from'] }}</span>
                                     </div>
-                                    <div class="w-2 h-2 rounded-full {{ $member->user->id === auth()->id() ? 'bg-emerald-400' : 'bg-brand-light/40' }}"></div>
+
+                                    <!-- Flow Indicator -->
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-12 h-[2px] bg-brand-medium/20 rounded-full"></div>
+                                        <div class="p-2 bg-brand-soft rounded-lg text-brand-medium/40">
+                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                        </div>
+                                        <div class="w-12 h-[2px] bg-brand-medium/20 rounded-full"></div>
+                                    </div>
+
+                                    <!-- Creditor (To) -->
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-10 h-10 rounded-xl bg-brand-medium flex items-center justify-center text-[11px] font-black text-white shadow-lg">
+                                            {{ strtoupper(substr($settlement['to'], 0, 1)) }}
+                                        </div>
+                                        <span class="text-xs font-black text-brand-dark uppercase tracking-tighter">{{ $settlement['to'] }}</span>
+                                    </div>
                                 </div>
-                            @endforeach
-                        </div>
-                    </div>
 
-                    <!-- OWNER ONLY: Pending Invitations (Rule 5.2) -->
+                                <div class="text-right">
+                                    <p class="text-3xl font-black text-brand-dark tabular-nums tracking-tighter">{{ number_format($settlement['amount'], 2) }}€</p>
+
+                                    @if($settlement['from'] === auth()->user()->name)
+                                        <form action="{{ route('payments.store') }}" method="POST" class="mt-2">
+                                            @csrf
+                                            <input type="hidden" name="receiver_id" value="{{ $settlement['to_id'] }}">
+                                            <input type="hidden" name="amount" value="{{ $settlement['amount'] }}">
+                                            <button type="submit" class="text-[9px] font-black text-brand-medium hover:text-brand-dark uppercase tracking-widest underline decoration-brand-light/40 hover:decoration-brand-medium transition-all">
+                                                Mark as Sent
+                                            </button>
+                                        </form>
+                                    @else
+                                        <div class="mt-2 flex items-center justify-end gap-1.5 opacity-40">
+                                            <span class="text-[8px] font-black text-brand-medium uppercase tracking-[0.2em]">Settlement Pending</span>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        @empty
+                            <div class="text-center py-20 flex flex-col items-center">
+                                <div class="w-20 h-20 bg-brand-soft/50 rounded-full flex items-center justify-center mb-6 text-brand-medium/20">
+                                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                </div>
+                                <p class="text-[10px] font-black text-brand-medium/30 uppercase tracking-[0.5em]">Financial Balance Reached</p>
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+
+            <!-- ROOMMATE REGISTRY (Kick Member Feature) -->
+            <div class="bg-white rounded-[3.5rem] shadow-sm border border-brand-light/10 overflow-hidden">
+                <div class="px-12 py-8 border-b border-brand-soft bg-brand-soft/10 flex justify-between items-center">
+                    <h3 class="text-xs font-black text-brand-dark uppercase tracking-[0.3em]">Roommate Registry</h3>
                     @if($membership->is_owner)
-                        <div class="space-y-6">
-                            <div class="flex justify-between items-center px-2">
-                                <h3 class="text-xs font-black text-brand-dark uppercase tracking-[0.3em]">Outbound Tokens</h3>
-                                <div class="h-[1px] flex-1 bg-brand-light/20 mx-6"></div>
-                            </div>
-                            @php
-                                $pendingInvites = \App\Models\Invitation::where('colocation_id', $membership->colocation_id)
-                                    ->where('status', \App\Enums\InvitationStatus::PENDING)
-                                    ->where('expires_at', '>', now())
-                                    ->get();
-                            @endphp
-                            <div class="space-y-3">
-                                @forelse($pendingInvites as $invite)
-                                    <div class="flex items-center justify-between p-4 bg-brand-soft/20 rounded-2xl border border-brand-light/10">
-                                        <span class="text-xs font-black text-brand-dark">{{ $invite->email }}</span>
-                                        <span class="text-[8px] font-black text-brand-medium uppercase tracking-widest">Expires {{ $invite->expires_at->diffForHumans() }}</span>
-                                    </div>
-                                @empty
-                                    <p class="text-[10px] font-bold text-brand-medium/40 uppercase px-2 italic">No pending invitations.</p>
-                                @endforelse
-                            </div>
-                        </div>
+                        <span class="text-[9px] font-black text-brand-medium uppercase tracking-widest px-3 py-1 bg-brand-soft rounded-lg">Administrative Control Active</span>
                     @endif
                 </div>
-            </div>
+                <div class="p-10">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        @foreach($membership->colocation->memberships as $member)
+                            @if(!$member->left_at)
+                                <div class="p-6 bg-brand-soft/10 rounded-[2rem] border border-brand-light/5 hover:bg-white hover:shadow-md transition-all group">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-12 h-12 bg-brand-dark rounded-2xl flex items-center justify-center text-sm font-black text-white shadow-inner">
+                                                {{ strtoupper(substr($member->user->name, 0, 1)) }}
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-black text-brand-dark leading-none">{{ $member->user->name }}</p>
+                                                <p class="text-[9px] font-bold text-brand-medium uppercase tracking-widest mt-1">
+                                                    {{ $member->is_owner ? 'House Owner' : 'Roommate' }}
+                                                </p>
+                                            </div>
+                                        </div>
 
-            <!-- MANAGEMENT SECTION (CDC Rule 6.1 & 6.2) -->
-            <div class="mt-24 pt-10 border-t border-brand-light/20 text-center">
-                @if ($membership->is_owner)
-                    <!-- OWNER: CANCEL (Rule 6.2) -->
-                    <form action="{{ route('colocations.cancel') }}" method="POST" onsubmit="return confirm('CDC RULE 5.2 & 5.5 WARNING:\n\nThis will permanently close the house registry. Reputation scores will be updated for ALL members.\n\nPROCEED?')">
-                        @csrf
-                        <button type="submit" class="group inline-flex flex-col items-center gap-3">
-                            <span class="text-[10px] font-black text-orange-500/40 group-hover:text-orange-600 uppercase tracking-[0.4em] transition-all">Cancel House Registry</span>
-                            <div class="w-1 h-1 rounded-full bg-orange-500/20 group-hover:w-12 group-hover:bg-orange-600 transition-all duration-500"></div>
-                        </button>
-                    </form>
-                @else
-                    <!-- MEMBER: LEAVE (Rule 6.1) -->
-                    <form action="{{ route('colocations.leave') }}" method="POST" onsubmit="return confirm('CDC RULE 5.5 WARNING:\n\nLeaving with a negative balance will reduce your reputation. Confirm departure?')">
-                        @csrf
-                        <button type="submit" class="group inline-flex flex-col items-center gap-3">
-                            <span class="text-[10px] font-black text-red-500/40 group-hover:text-red-600 uppercase tracking-[0.4em] transition-all">Terminate Membership</span>
-                            <div class="w-1 h-1 rounded-full bg-red-500/20 group-hover:w-8 group-hover:bg-red-600 transition-all duration-500"></div>
-                        </button>
-                    </form>
-                @endif
+                                        <!-- KICK BUTTON (Owner Only, Cannot Kick Self) -->
+                                        @if($membership->is_owner && $member->id !== $membership->id)
+                                            <form action="{{ route('members.remove', $member) }}" method="POST" onsubmit="return confirm('Are you sure you want to kick this member?');">
+                                                @csrf
+                                                <button type="submit" class="p-2 text-brand-medium/30 hover:text-red-600 transition-colors">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6zM21 12h-6" />
+                                                    </svg>
+                                                </button>
+                                            </form>
+                                        @endif
+                                    </div>
+
+                                    <!-- Reputation Mini-Badge -->
+                                    <div class="pt-4 border-t border-brand-soft flex items-center justify-between">
+                                        <span class="text-[9px] font-black text-brand-medium/50 uppercase tracking-widest">Reputation</span>
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="text-xs font-black {{ $member->user->reputation_score >= 0 ? 'text-emerald-500' : 'text-red-500' }}">
+                                                {{ $member->user->reputation_score > 0 ? '+' : '' }}{{ $member->user->reputation_score }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+                        @endforeach
+                    </div>
+                </div>
             </div>
         @endif
+
     </div>
+</div>
 @endsection
