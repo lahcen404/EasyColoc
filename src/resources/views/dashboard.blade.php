@@ -120,8 +120,8 @@
                         <div>
                             <p class="text-[10px] font-black text-brand-medium uppercase tracking-widest mb-6">Operational Tools</p>
                             <div class="flex flex-wrap gap-3">
-                                <a href="{{ route('expenses.index') }}" class="px-6 py-3 bg-brand-soft text-brand-dark text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-brand-light/20 transition-all">Registry</a>
-                                <form action="{{ route('colocations.leave') }}" method="POST" onsubmit="return confirm('Confirm exit? Final reputation will be calculated.');">
+                                <a href="{{ route('expenses.index') }}" class="px-6 py-3 bg-brand-soft text-brand-dark text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-brand-soft transition-all shadow-sm">History</a>
+                                <form action="{{ route('colocations.leave') }}" method="POST" onsubmit="return confirm('Are you sure you want to exit this house?');">
                                     @csrf
                                     <button type="submit" class="px-6 py-3 bg-red-50 text-red-600 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-red-100 transition-all">Exit House</button>
                                 </form>
@@ -129,9 +129,9 @@
                         </div>
                         @if($membership->is_owner)
                             <div class="mt-6 pt-6 border-t border-brand-soft/50">
-                                <form action="{{ route('colocations.cancel') }}" method="POST" onsubmit="return confirm('DANGER: This erases all house data. Proceed?');">
+                                <form action="{{ route('colocations.cancel') }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this colocation?');">
                                     @csrf
-                                    <button type="submit" class="text-[9px] font-black text-red-400 uppercase tracking-widest hover:text-red-600 transition-colors">Terminte Colocation</button>
+                                    <button type="submit" class="text-[9px] font-black text-red-400 uppercase tracking-widest hover:text-red-600 transition-colors">Cancel Colocation</button>
                                 </form>
                             </div>
                         @endif
@@ -140,7 +140,7 @@
             </div>
 
             <!-- Settlement Logic Matrix -->
-            <div class="bg-white rounded-[3.5rem] shadow-sm border border-brand-light/10 overflow-hidden">
+            <div class="bg-white rounded-[3.5rem] shadow-sm border border-brand-light/10 overflow-hidden mb-12">
                 <div class="px-12 py-10 border-b border-brand-soft bg-brand-soft/10 flex justify-between items-center">
                     <div>
                         <h3 class="text-xs font-black text-brand-dark uppercase tracking-[0.4em]">Settlement Matrix</h3>
@@ -210,6 +210,61 @@
                                 <p class="text-[10px] font-black text-brand-medium/30 uppercase tracking-[0.5em]">Financial Balance Reached</p>
                             </div>
                         @endforelse
+                    </div>
+                </div>
+            </div>
+
+            <!-- ROOMMATE REGISTRY (Kick Member Feature) -->
+            <div class="bg-white rounded-[3.5rem] shadow-sm border border-brand-light/10 overflow-hidden">
+                <div class="px-12 py-8 border-b border-brand-soft bg-brand-soft/10 flex justify-between items-center">
+                    <h3 class="text-xs font-black text-brand-dark uppercase tracking-[0.3em]">Roommate Registry</h3>
+                    @if($membership->is_owner)
+                        <span class="text-[9px] font-black text-brand-medium uppercase tracking-widest px-3 py-1 bg-brand-soft rounded-lg">Administrative Control Active</span>
+                    @endif
+                </div>
+                <div class="p-10">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        @foreach($membership->colocation->memberships as $member)
+                            @if(!$member->left_at)
+                                <div class="p-6 bg-brand-soft/10 rounded-[2rem] border border-brand-light/5 hover:bg-white hover:shadow-md transition-all group">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-12 h-12 bg-brand-dark rounded-2xl flex items-center justify-center text-sm font-black text-white shadow-inner">
+                                                {{ strtoupper(substr($member->user->name, 0, 1)) }}
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-black text-brand-dark leading-none">{{ $member->user->name }}</p>
+                                                <p class="text-[9px] font-bold text-brand-medium uppercase tracking-widest mt-1">
+                                                    {{ $member->is_owner ? 'House Owner' : 'Roommate' }}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <!-- KICK BUTTON (Owner Only, Cannot Kick Self) -->
+                                        @if($membership->is_owner && $member->id !== $membership->id)
+                                            <form action="{{ route('members.remove', $member) }}" method="POST" onsubmit="return confirm('Are you sure you want to kick this member?');">
+                                                @csrf
+                                                <button type="submit" class="p-2 text-brand-medium/30 hover:text-red-600 transition-colors">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6zM21 12h-6" />
+                                                    </svg>
+                                                </button>
+                                            </form>
+                                        @endif
+                                    </div>
+
+                                    <!-- Reputation Mini-Badge -->
+                                    <div class="pt-4 border-t border-brand-soft flex items-center justify-between">
+                                        <span class="text-[9px] font-black text-brand-medium/50 uppercase tracking-widest">Reputation</span>
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="text-xs font-black {{ $member->user->reputation_score >= 0 ? 'text-emerald-500' : 'text-red-500' }}">
+                                                {{ $member->user->reputation_score > 0 ? '+' : '' }}{{ $member->user->reputation_score }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+                        @endforeach
                     </div>
                 </div>
             </div>

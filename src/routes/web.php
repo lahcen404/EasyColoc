@@ -8,6 +8,7 @@ use App\Http\Controllers\Member\MemberDashboardController;
 use App\Http\Controllers\Member\ExpenseController;
 use App\Http\Controllers\Member\InvitationController;
 use App\Http\Controllers\Member\PaymentController;
+use App\Http\Controllers\Member\CategoryController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -31,6 +32,9 @@ Route::middleware('auth')->group(function () {
         // cancel colocation
         Route::post('/colocation/cancel', [ColocationController::class, 'cancel'])->name('colocations.cancel');
 
+        // remove member
+        Route::post('/members/{membership}/remove', [ColocationMemberController::class, 'remove'])->name('members.remove');
+
         // invitation routes
         Route::get('/invitations/create', [InvitationController::class, 'create'])->name('invitations.create');
         Route::post('/invitations', [InvitationController::class, 'store'])->name('invitations.store');
@@ -39,7 +43,6 @@ Route::middleware('auth')->group(function () {
         // payment routes
         Route::post('/payments', [PaymentController::class, 'store'])->name('payments.store');
         Route::post('/payments/{payment}/confirm', [PaymentController::class, 'confirm'])->name('payments.confirm');
-
 
         // expense routes
         Route::get('/expenses', [ExpenseController::class, 'index'])->name('expenses.index');
