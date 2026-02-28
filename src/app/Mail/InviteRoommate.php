@@ -36,7 +36,7 @@ class InviteRoommate extends Mailable
             view: 'emails.invite_roommate',
             with: [
                 // create link
-                'joinUrl' => route('invitations.join', ['token' => $this->invitation->token]),
+                'joinUrl' => route('invitations.show', ['token' => $this->invitation->token]),
             ],
         );
     }

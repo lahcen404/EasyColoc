@@ -38,7 +38,9 @@ Route::middleware('auth')->group(function () {
         // invitation routes
         Route::get('/invitations/create', [InvitationController::class, 'create'])->name('invitations.create');
         Route::post('/invitations', [InvitationController::class, 'store'])->name('invitations.store');
-        Route::get('/join/{token}', [InvitationController::class, 'join'])->name('invitations.join');
+        Route::get('/invitations/{token}', [InvitationController::class, 'show'])->name('invitations.show');
+        Route::post('/invitations/{token}/accept', [InvitationController::class, 'accept'])->name('invitations.accept');
+        Route::post('/invitations/{token}/refuse', [InvitationController::class, 'refuse'])->name('invitations.refuse');
 
         // payment routes
         Route::post('/payments', [PaymentController::class, 'store'])->name('payments.store');

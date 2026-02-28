@@ -54,12 +54,12 @@ class InvitationController extends Controller
             Mail::to($request->email)->send(new InviteRoommate($invitation));
             return redirect()->route('dashboard')->with('success', "Access token dispatched to {$request->email}.");
         } catch (\Exception $e) {
-            return redirect()->route('dashboard')->with('success', "Token generated, but email delivery failed. Manual link: " . route('invitations.join', $invitation->token));
+            return redirect()->route('dashboard')->with('success', "Token generated, but email delivery failed. Manual link: " . route('invitations.show', $invitation->token));
         }
     }
 
     // validation tokeen
-    public function join(string $token): RedirectResponse
+    public function show(string $token): View|RedirectResponse
     {
         // fiind the token in the database
         $invitation = Invitation::where('token', $token)
@@ -70,6 +70,17 @@ class InvitationController extends Controller
         if (!$invitation) {
             return redirect()->route('dashboard')->with('error', 'Invalid or expired access token.');
         }
+
+        return view('invitations.show', compact('invitation'));
+    }
+
+    // process accept invitation
+    public function accept(string $token): RedirectResponse
+    {
+        $invitation = Invitation::where('token', $token)
+            ->where('status', InvitationStatus::PENDING)
+            ->where('expires_at', '>', now())
+            ->firstOrFail();
 
         $user = Auth::user();
 
@@ -104,5 +115,19 @@ class InvitationController extends Controller
             DB::rollBack();
             return redirect()->route('dashboard')->with('error', 'Error joining the house!!');
         }
+    }
+
+    // process refuse invitation
+    public function refuse(string $token): RedirectResponse
+    {
+        $invitation = Invitation::where('token', $token)
+            ->where('status', InvitationStatus::PENDING)
+            ->firstOrFail();
+
+        $invitation->update([
+            'status' => InvitationStatus::REFUSED
+        ]);
+
+        return redirect()->route('dashboard')->with('success', 'Invitation declined successfully.');
     }
 }
