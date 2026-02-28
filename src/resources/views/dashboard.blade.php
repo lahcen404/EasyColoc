@@ -38,12 +38,17 @@
                     </div>
                 </div>
 
-                <div class="flex gap-4">
+                <div class="flex flex-wrap gap-4">
                     <a href="{{ route('expenses.create') }}" class="px-8 py-5 bg-brand-dark text-white text-xs font-black uppercase tracking-widest rounded-[1.5rem] shadow-2xl hover:bg-brand-medium transition-all flex items-center gap-3">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"/></svg>
                         Log Expense
                     </a>
                     @if($membership->is_owner)
+                        <!-- ADD CATEGORY BUTTON (HEADER) -->
+                        <a href="{{ route('categories.index') }}" class="px-8 py-5 bg-white border-2 border-brand-light text-brand-medium text-xs font-black uppercase tracking-widest rounded-[1.5rem] hover:bg-brand-soft transition-all shadow-sm flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+                            Categories
+                        </a>
                         <a href="{{ route('invitations.create') }}" class="px-8 py-5 bg-white border-2 border-brand-dark text-brand-dark text-xs font-black uppercase tracking-widest rounded-[1.5rem] hover:bg-brand-soft transition-all shadow-sm">
                             Invite
                         </a>
@@ -92,14 +97,14 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
                 <!-- My Current Standing -->
                 <div class="lg:col-span-1 bg-brand-dark rounded-[3.5rem] p-12 text-white shadow-2xl relative overflow-hidden group">
-                    <!-- REPUTATION BADGE -->
-                    <div class="absolute top-8 right-8 flex flex-col items-end">
-                        <span class="text-[8px] font-black uppercase tracking-[0.3em] text-brand-light opacity-40 mb-1">Global Standing</span>
-                        <div class="px-3 py-1.5 bg-white/10 rounded-xl border border-white/10 backdrop-blur-sm flex items-center gap-2">
+                   
+                    <div class="absolute top-6 right-6 flex flex-col items-end">
+                        <span class="text-xs font-semibold text-brand-light opacity-70 mb-1">Global standing</span>
+                        <div class="px-3 py-1 bg-white/10 rounded-xl border border-white/10 backdrop-blur-sm flex items-center gap-2">
                             <svg class="w-3 h-3 {{ auth()->user()->reputation_score >= 0 ? 'text-emerald-400' : 'text-red-400' }}" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                             </svg>
-                            <span class="text-xs font-black {{ auth()->user()->reputation_score >= 0 ? 'text-emerald-400' : 'text-red-400' }}">
+                            <span class="text-sm font-semibold {{ auth()->user()->reputation_score >= 0 ? 'text-emerald-400' : 'text-red-400' }}">
                                 {{ auth()->user()->reputation_score > 0 ? '+' : '' }}{{ auth()->user()->reputation_score }}
                             </span>
                         </div>
@@ -117,7 +122,6 @@
                             </span>
                         </div>
                     </div>
-                    <!-- Decorative Background Element -->
                     <div class="absolute -right-16 -bottom-16 w-56 h-56 bg-brand-medium rounded-full blur-[80px] opacity-30 group-hover:opacity-50 transition-opacity"></div>
                 </div>
 
@@ -134,6 +138,12 @@
                             <p class="text-[10px] font-black text-brand-medium uppercase tracking-widest mb-6">Operational Tools</p>
                             <div class="flex flex-wrap gap-3">
                                 <a href="{{ route('expenses.index') }}" class="px-6 py-3 bg-brand-soft text-brand-dark text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-brand-soft transition-all shadow-sm">History</a>
+
+                                @if($membership->is_owner)
+                                    <!-- ADD CATEGORY BUTTON (TOOLS) -->
+                                    <a href="{{ route('categories.index') }}" class="px-6 py-3 bg-brand-soft text-brand-medium text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-brand-light/20 transition-all">Manage Categories</a>
+                                @endif
+
                                 <form action="{{ route('colocations.leave') }}" method="POST" onsubmit="return confirm('Are you sure you want to exit this house?');">
                                     @csrf
                                     <button type="submit" class="px-6 py-3 bg-red-50 text-red-600 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-red-100 transition-all">Exit House</button>
@@ -170,7 +180,6 @@
                         @forelse($settlements as $settlement)
                             <div class="flex items-center justify-between p-8 bg-brand-soft/15 rounded-[2.5rem] border border-brand-light/5 hover:border-brand-medium/30 transition-all group">
                                 <div class="flex items-center gap-8">
-                                    <!-- Debtor (From) -->
                                     <div class="flex items-center gap-4">
                                         <div class="w-10 h-10 rounded-xl bg-brand-dark flex items-center justify-center text-[11px] font-black text-white shadow-lg">
                                             {{ strtoupper(substr($settlement['from'], 0, 1)) }}
@@ -178,7 +187,6 @@
                                         <span class="text-xs font-black text-brand-dark uppercase tracking-tighter">{{ $settlement['from'] }}</span>
                                     </div>
 
-                                    <!-- Flow Indicator -->
                                     <div class="flex items-center gap-4">
                                         <div class="w-12 h-[2px] bg-brand-medium/20 rounded-full"></div>
                                         <div class="p-2 bg-brand-soft rounded-lg text-brand-medium/40">
@@ -187,7 +195,6 @@
                                         <div class="w-12 h-[2px] bg-brand-medium/20 rounded-full"></div>
                                     </div>
 
-                                    <!-- Creditor (To) -->
                                     <div class="flex items-center gap-4">
                                         <div class="w-10 h-10 rounded-xl bg-brand-medium flex items-center justify-center text-[11px] font-black text-white shadow-lg">
                                             {{ strtoupper(substr($settlement['to'], 0, 1)) }}
@@ -253,7 +260,6 @@
                                             </div>
                                         </div>
 
-                                        <!-- KICK BUTTON (Owner Only, Cannot Kick Self) -->
                                         @if($membership->is_owner && $member->id !== $membership->id)
                                             <form action="{{ route('members.remove', $member) }}" method="POST" onsubmit="return confirm('Are you sure you want to kick this member?');">
                                                 @csrf
@@ -266,7 +272,6 @@
                                         @endif
                                     </div>
 
-                                    <!-- Reputation Mini-Badge -->
                                     <div class="pt-4 border-t border-brand-soft flex items-center justify-between">
                                         <span class="text-[9px] font-black text-brand-medium/50 uppercase tracking-widest">Reputation</span>
                                         <div class="flex items-center gap-1.5">
