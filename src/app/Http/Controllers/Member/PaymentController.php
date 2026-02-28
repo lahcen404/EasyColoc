@@ -35,9 +35,24 @@ class PaymentController extends Controller
             'receiver_id' => $request->receiver_id,
             'amount' => $request->amount,
             'date' => now(),
-            'is_confirmed' => true,
+            'is_confirmed' => false, // starts as pending for the handshake
         ]);
 
         return redirect()->route('dashboard')->with('success', 'Payment successfully recorded!!');
+    }
+
+    // confirm a received payment
+     public function confirm(Payment $payment): RedirectResponse
+    {
+        $myMembership = Auth::user()->memberships()->whereNull('left_at')->firstOrFail();
+
+        // only receiver can confirm the payment
+        if ($payment->receiver_id !== $myMembership->id) {
+            return redirect()->back()->with('error', 'Unauthorized confirmation attempt.');
+        }
+
+        $payment->update(['is_confirmed' => true]);
+
+        return redirect()->route('dashboard')->with('success', 'Registry updated: Payment confirmed.');
     }
 }

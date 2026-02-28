@@ -38,6 +38,7 @@ Route::middleware('auth')->group(function () {
 
         // payment routes
         Route::post('/payments', [PaymentController::class, 'store'])->name('payments.store');
+        Route::post('/payments/{payment}/confirm', [PaymentController::class, 'confirm'])->name('payments.confirm');
 
 
         // expense routes
