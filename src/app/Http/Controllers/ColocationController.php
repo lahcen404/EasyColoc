@@ -107,4 +107,35 @@ class ColocationController extends Controller
             return redirect()->back()->with('error', 'error in cancellation !!');
         }
     }
+
+    public function transferOwnership(Membership $membership): RedirectResponse
+    {
+        // find the current owner's membership
+        $currentOwner = Auth::user()->memberships()
+            ->where('is_owner', true)
+            ->whereNull('left_at')
+            ->firstOrFail();
+
+        // arget member must be in the same house
+        if ($membership->colocation_id !== $currentOwner->colocation_id) {
+            return redirect()->back()->with('error', 'Unauthorized: Target member is not in your house registry.');
+        }
+
+        
+        try {
+            DB::beginTransaction();
+
+            // remove owner status from current user
+            $currentOwner->update(['is_owner' => false]);
+
+            // give owner status to target user
+            $membership->update(['is_owner' => true]);
+
+            DB::commit();
+            return redirect()->route('dashboard')->with('success', "Administrative keys transferred to {$membership->user->name}.");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Critical failure during ownership handover.');
+        }
+    }
 }

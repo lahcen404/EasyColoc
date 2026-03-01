@@ -35,6 +35,10 @@ Route::middleware('auth')->group(function () {
         // remove member
         Route::post('/members/{membership}/remove', [ColocationMemberController::class, 'remove'])->name('members.remove');
 
+        // transfer ownership
+        Route::post('/members/{membership}/transfer', [ColocationController::class, 'transferOwnership'])->name('members.transfer');
+
+
         // invitation routes
         Route::get('/invitations/create', [InvitationController::class, 'create'])->name('invitations.create');
         Route::post('/invitations', [InvitationController::class, 'store'])->name('invitations.store');

@@ -70,7 +70,7 @@
                                 <div class="flex items-center gap-5">
                                     <div class="w-14 h-14 bg-brand-soft rounded-[1.5rem] flex items-center justify-center border border-brand-light/10 shadow-inner group-hover:bg-brand-light/20 transition-colors">
                                         <svg class="w-7 h-7 text-brand-medium" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 11-4 0 2 2 0 014 0z" />
                                         </svg>
                                     </div>
                                     <div>
@@ -97,7 +97,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
                 <!-- My Current Standing -->
                 <div class="lg:col-span-1 bg-brand-dark rounded-[3.5rem] p-12 text-white shadow-2xl relative overflow-hidden group">
-                   
+
                     <div class="absolute top-6 right-6 flex flex-col items-end">
                         <span class="text-xs font-semibold text-brand-light opacity-70 mb-1">Global standing</span>
                         <div class="px-3 py-1 bg-white/10 rounded-xl border border-white/10 backdrop-blur-sm flex items-center gap-2">
@@ -144,7 +144,8 @@
                                     <a href="{{ route('categories.index') }}" class="px-6 py-3 bg-brand-soft text-brand-medium text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-brand-light/20 transition-all">Manage Categories</a>
                                 @endif
 
-                                <form action="{{ route('colocations.leave') }}" method="POST" onsubmit="return confirm('Are you sure you want to exit this house?');">
+                                <!-- UPDATE: Scenario 3 warning added to 'Leave' button -->
+                                <form action="{{ route('colocations.leave') }}" method="POST" onsubmit="return confirm('SCENARIO 3 PROTOCOL: Leaving with debts will penalize your global reputation score. Proceed with departure?');">
                                     @csrf
                                     <button type="submit" class="px-6 py-3 bg-red-50 text-red-600 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-red-100 transition-all">Exit House</button>
                                 </form>
@@ -152,7 +153,7 @@
                         </div>
                         @if($membership->is_owner)
                             <div class="mt-6 pt-6 border-t border-brand-soft/50">
-                                <form action="{{ route('colocations.cancel') }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this colocation?');">
+                                <form action="{{ route('colocations.cancel') }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this colocation? This will audit final reputations.');">
                                     @csrf
                                     <button type="submit" class="text-[9px] font-black text-red-400 uppercase tracking-widest hover:text-red-600 transition-colors">Cancel Colocation</button>
                                 </form>
@@ -234,7 +235,7 @@
                 </div>
             </div>
 
-            <!-- ROOMMATE REGISTRY (Kick Member Feature) -->
+            <!-- ROOMMATE REGISTRY -->
             <div class="bg-white rounded-[3.5rem] shadow-sm border border-brand-light/10 overflow-hidden">
                 <div class="px-12 py-8 border-b border-brand-soft bg-brand-soft/10 flex justify-between items-center">
                     <h3 class="text-xs font-black text-brand-dark uppercase tracking-[0.3em]">Roommate Registry</h3>
@@ -260,15 +261,29 @@
                                             </div>
                                         </div>
 
+                                        <!-- UPDATE: Owner Actions Container -->
                                         @if($membership->is_owner && $member->id !== $membership->id)
-                                            <form action="{{ route('members.remove', $member) }}" method="POST" onsubmit="return confirm('Are you sure you want to kick this member?');">
-                                                @csrf
-                                                <button type="submit" class="p-2 text-brand-medium/30 hover:text-red-600 transition-colors">
-                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6zM21 12h-6" />
-                                                    </svg>
-                                                </button>
-                                            </form>
+                                            <div class="flex items-center gap-2">
+                                                <!-- NEW: Transfer Ownership Button (Requirement 6.2) -->
+                                                <form action="{{ route('members.transfer', $member) }}" method="POST" onsubmit="return confirm('WARNING: You will lose owner privileges. Transfer house control to {{ $member->user->name }}?');">
+                                                    @csrf
+                                                    <button type="submit" class="p-2 text-brand-medium/30 hover:text-brand-dark transition-colors" title="Make Owner">
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 010.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                                                        </svg>
+                                                    </button>
+                                                </form>
+
+                                                <!-- UPDATE: Kick Button with Scenario 3 warning -->
+                                                <form action="{{ route('members.remove', $member) }}" method="POST" onsubmit="return confirm('SCENARIO 3 WARNING: By removing this member, YOU agree to absorb their current debt in this registry. Proceed?');">
+                                                    @csrf
+                                                    <button type="submit" class="p-2 text-brand-medium/30 hover:text-red-600 transition-colors" title="Kick member">
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6zM21 12h-6" />
+                                                        </svg>
+                                                    </button>
+                                                </form>
+                                            </div>
                                         @endif
                                     </div>
 
