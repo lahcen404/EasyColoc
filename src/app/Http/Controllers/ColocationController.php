@@ -8,6 +8,7 @@ use App\Enums\ColocationStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 /**
@@ -54,6 +55,87 @@ class ColocationController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()->with('error', 'Error in Creating !');
+        }
+    }
+
+    public function cancel(): RedirectResponse
+    {
+        $user = Auth::user();
+
+        // onlyy owner can cancel
+        $ownerMembership = $user->memberships()
+            ->where('is_owner', true)
+            ->whereNull('left_at')
+            ->firstOrFail();
+
+        $colocation = $ownerMembership->colocation;
+
+        try {
+            DB::beginTransaction();
+
+            $activeMemberships = $colocation->memberships()->whereNull('left_at')->with(['user', 'paidExpenses'])->get();
+            $totalExpenses = $colocation->expenses->sum('amount');
+            $memberCount = $activeMemberships->count();
+            $fairShare = $memberCount > 0 ? round($totalExpenses / $memberCount, 2) : 0;
+
+
+            // updaate reputations and mark all as left
+            foreach ($activeMemberships as $membership) {
+                $memberUser = $membership->user;
+                $paidByMember = $membership->paidExpenses->sum('amount');
+                $balance = $paidByMember - $fairShare;
+
+
+                if ($balance < -0.01) {
+                    $memberUser->decrement('reputation_score');
+                } else {
+                    $memberUser->increment('reputation_score');
+                }
+
+
+                $membership->update(['left_at' => now()]);
+            }
+
+
+            $colocation->update(['status' => ColocationStatus::CANCELLED]);
+
+            DB::commit();
+            return redirect()->route('dashboard')->with('success', 'House registry cancelle!!');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'error in cancellation !!');
+        }
+    }
+
+    public function transferOwnership(Membership $membership): RedirectResponse
+    {
+        // find the current owner's membership
+        $currentOwner = Auth::user()->memberships()
+            ->where('is_owner', true)
+            ->whereNull('left_at')
+            ->firstOrFail();
+
+        // arget member must be in the same house
+        if ($membership->colocation_id !== $currentOwner->colocation_id) {
+            return redirect()->back()->with('error', 'Unauthorized: Target member is not in your house registry.');
+        }
+
+        
+        try {
+            DB::beginTransaction();
+
+            // remove owner status from current user
+            $currentOwner->update(['is_owner' => false]);
+
+            // give owner status to target user
+            $membership->update(['is_owner' => true]);
+
+            DB::commit();
+            return redirect()->route('dashboard')->with('success', "Administrative keys transferred to {$membership->user->name}.");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Critical failure during ownership handover.');
         }
     }
 }

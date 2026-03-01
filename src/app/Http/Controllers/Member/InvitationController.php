@@ -54,14 +54,14 @@ class InvitationController extends Controller
             Mail::to($request->email)->send(new InviteRoommate($invitation));
             return redirect()->route('dashboard')->with('success', "Access token dispatched to {$request->email}.");
         } catch (\Exception $e) {
-            return redirect()->route('dashboard')->with('success', "Token generated, but email delivery failed. Manual link: " . route('invitations.join', $invitation->token));
+            return redirect()->route('dashboard')->with('success', "Token generated, but email delivery failed. Manual link: " . route('invitations.show', $invitation->token));
         }
     }
 
     // validation tokeen
-    public function join(string $token): RedirectResponse
+    public function show(string $token): View|RedirectResponse
     {
-        // 1. Find the token in the database
+        // fiind the token in the database
         $invitation = Invitation::where('token', $token)
             ->where('status', InvitationStatus::PENDING)
             ->where('expires_at', '>', now())
@@ -71,6 +71,17 @@ class InvitationController extends Controller
             return redirect()->route('dashboard')->with('error', 'Invalid or expired access token.');
         }
 
+        return view('invitations.show', compact('invitation'));
+    }
+
+    // process accept invitation
+    public function accept(string $token): RedirectResponse
+    {
+        $invitation = Invitation::where('token', $token)
+            ->where('status', InvitationStatus::PENDING)
+            ->where('expires_at', '>', now())
+            ->firstOrFail();
+
         $user = Auth::user();
 
         // check if user is already part of an active house registry
@@ -79,7 +90,7 @@ class InvitationController extends Controller
             ->exists();
 
         if ($hasActiveMembership) {
-            return redirect()->route('dashboard')->with('error', 'Security Violation: You are already part of an active house registry. Leave your current house to join a new one.');
+            return redirect()->route('dashboard')->with('error', 'You are already part in other house!!');
         }
 
         try {
@@ -102,7 +113,21 @@ class InvitationController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->route('dashboard')->with('error', 'Initialization failure. The handshake could not be completed.');
+            return redirect()->route('dashboard')->with('error', 'Error joining the house!!');
         }
+    }
+
+    // process refuse invitation
+    public function refuse(string $token): RedirectResponse
+    {
+        $invitation = Invitation::where('token', $token)
+            ->where('status', InvitationStatus::PENDING)
+            ->firstOrFail();
+
+        $invitation->update([
+            'status' => InvitationStatus::REFUSED
+        ]);
+
+        return redirect()->route('dashboard')->with('success', 'Invitation declined successfully.');
     }
 }
