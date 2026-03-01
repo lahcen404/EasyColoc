@@ -144,8 +144,8 @@
                                     <a href="{{ route('categories.index') }}" class="px-6 py-3 bg-brand-soft text-brand-medium text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-brand-light/20 transition-all">Manage Categories</a>
                                 @endif
 
-                                <!-- UPDATE: Scenario 3 warning added to 'Leave' button -->
-                                <form action="{{ route('colocations.leave') }}" method="POST" onsubmit="return confirm('SCENARIO 3 PROTOCOL: Leaving with debts will penalize your global reputation score. Proceed with departure?');">
+                                <!-- leave colocation -->
+                                <form action="{{ route('colocations.leave') }}" method="POST" onsubmit="return confirm('Are you sure you want to leave this colocation?');">
                                     @csrf
                                     <button type="submit" class="px-6 py-3 bg-red-50 text-red-600 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-red-100 transition-all">Exit House</button>
                                 </form>
@@ -274,8 +274,8 @@
                                                     </button>
                                                 </form>
 
-                                                <!-- UPDATE: Kick Button with Scenario 3 warning -->
-                                                <form action="{{ route('members.remove', $member) }}" method="POST" onsubmit="return confirm('SCENARIO 3 WARNING: By removing this member, YOU agree to absorb their current debt in this registry. Proceed?');">
+                                                <!-- Kick Button  -->
+                                                <form action="{{ route('members.remove', $member) }}" method="POST" onsubmit="return confirm('Are you sure you want to remove {{ $member->user->name }} from the house?');">
                                                     @csrf
                                                     <button type="submit" class="p-2 text-brand-medium/30 hover:text-red-600 transition-colors" title="Kick member">
                                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
