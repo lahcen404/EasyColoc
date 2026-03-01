@@ -9,9 +9,7 @@ use Illuminate\Support\Facades\Auth;
 
 class MemberDashboardController extends Controller
 {
-    /**
-     * Display the house dashboard with real-time settlement logic.
-     */
+    // show dashboard
     public function index(): View
     {
         $membership = auth()->user()->memberships()
@@ -19,8 +17,8 @@ class MemberDashboardController extends Controller
                 'colocation.expenses',
                 'colocation.memberships.user',
                 'paidExpenses',
-                'sentPayments',     // track money sent to others
-                'receivedPayments'  // track money received from others
+                'sentPayments',     
+                'receivedPayments'
             ])
             ->whereNull('left_at')
             ->first();
@@ -48,38 +46,44 @@ class MemberDashboardController extends Controller
                 ->with('sender.user')
                 ->get();
 
-            $myRelevantExpenses = $colocation->expenses()
-                ->where('date', '>=', $membership->joined_at)
-                ->get();
-
-            $myFairShare = $memberCount > 0 ? round($myRelevantExpenses->sum('amount') / $memberCount, 2) : 0;
-
             // calculate balance for current user
-            $paidByMe = $membership->paidExpenses->sum('amount');
-            $sentByMe = $membership->sentPayments()->where('is_confirmed', true)->sum('amount');
-            $receivedByMe = $membership->receivedPayments()->where('is_confirmed', true)->sum('amount');
-
-            $balance = ($paidByMe + $sentByMe) - ($myFairShare + $receivedByMe);
 
             $totalHouseExpenses = $colocation->expenses->sum('amount');
 
             // algo to determine who owes who based on balances
             $balances = [];
             foreach ($activeMemberships as $m) {
-                $relevantSum = $colocation->expenses()->where('date', '>=', $m->joined_at)->sum('amount');
-                $mFairShare = $memberCount > 0 ? round($relevantSum / $memberCount, 2) : 0;
+
+                $mTotalFairShare = 0;
+                foreach ($colocation->expenses as $expense) {
+
+                    if ($expense->date >= $m->joined_at) {
+
+                        // calculate fair share based on who was present at the time of the expense
+                        $peoplePresentAtTime = $colocation->memberships->filter(function($otherM) use ($expense) {
+                            return $otherM->joined_at <= $expense->date && ($otherM->left_at === null || $otherM->left_at >= $expense->date);
+                        })->count();
+
+                        $mTotalFairShare += ($peoplePresentAtTime > 0) ? ($expense->amount / $peoplePresentAtTime) : 0;
+                    }
+                }
 
                 $mPaid = $m->paidExpenses->sum('amount');
                 $mSent = $m->sentPayments()->where('is_confirmed', true)->sum('amount');
                 $mReceived = $m->receivedPayments()->where('is_confirmed', true)->sum('amount');
 
-                $mStatus = ($mPaid + $mSent) - ($mFairShare + $mReceived);
+                $mStatus = ($mPaid + $mSent) - ($mTotalFairShare + $mReceived);
 
                 $balances[] = [
                     'name' => $m->user->name,
                     'id' => $m->id,
                     'balance' => round($mStatus, 2)
                 ];
+
+                // set the balance for the current logged-in user
+                if ($m->id === $membership->id) {
+                    $balance = $mStatus;
+                }
             }
 
             $debtors = array_filter($balances, fn($b) => $b['balance'] < -0.01);
