@@ -52,4 +52,4 @@ It provides a clear view of **“who owes who”** and simplifies reimbursements
 ![alt text](<Diagrams/usecase Easy coloc v2.drawio.png>)
 
 ### Class Diagram
-![alt text](<Diagrams/Class Diagram EasyColoc v2.png>)
+<img width="1132" height="832" alt="Class Diagram EasyColoc last" src="https://github.com/user-attachments/assets/3e064fa5-ebfd-4c74-b3b4-80a6a8c7c1ec" />
